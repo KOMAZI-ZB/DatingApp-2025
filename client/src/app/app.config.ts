@@ -10,8 +10,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient() //Telling angular hey i  want to use the internet
 
-
-
   ]
 };
 
