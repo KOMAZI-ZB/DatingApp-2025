@@ -2,6 +2,7 @@ using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
 using API.Extensions;
+using API.Helpers;
 using API.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
@@ -14,9 +15,12 @@ public class UsersController(IUserRepository userRepository, IMapper mapper,
     IPhotoService photoService) : BaseApiController
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<MemberDto>>> GetUsers([FromQuery] UserParams userParams)
     {
-        var users = await userRepository.GetMembersAsync();
+        userParams.CurrentUsername = User.GetUsername();
+        var users = await userRepository.GetMembersAsync(userParams);
+
+        Response.AddPaginationHeader(users);
 
         return Ok(users);
     }
@@ -117,29 +121,3 @@ public class UsersController(IUserRepository userRepository, IMapper mapper,
         return BadRequest("Problem deleting photo");
     }
 }
-
-/*Synchronous code
-[ApiController]
-[Route("api/[controller]")] // /api/users
-public class UsersController(DataContext context) : ControllerBase
-{
-    //We need to create the endpoints
-    [HttpGet]
-    public ActionResult<IEnumerable<AppUser>> GetUsers()
-    {
-        var users = context.Users.ToList();
-        return users;
-    }
-
-    [HttpGet("{id:int}")] //we need to add a route parameter to get the individual user => /api/users/1 
-    public ActionResult<AppUser> GetUser(int id)
-    {
-        var user = context.Users.Find(id);
-
-        if (user == null) return NotFound();
-
-        return user;
-    }
-
-}
-*/
